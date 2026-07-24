@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>연봉 실수령액 · 퇴직금 계산기</title>
+<meta name="description" content="연봉을 입력하면 4대보험과 세금을 제외한 월 실수령액을 바로 계산해줍니다. 입사일·퇴사일로 퇴직금도 함께 계산하세요." />
+<style>
+  :root {
+    --ink: #221c14;
+    --paper: #f7f4ec;
+    --card: #ffffff;
+    --accent: #2f4c7a;
+    --line: rgba(34, 28, 20, 0.12);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+  }
+  main {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+  }
+  h1 {
+    font-size: 22px;
+    margin: 0 0 20px;
+  }
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: rgba(34, 28, 20, 0.06);
+    border-radius: 999px;
+    padding: 4px;
+    margin-bottom: 20px;
+  }
+  .tabs button {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 10px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    color: rgba(34, 28, 20, 0.5);
+  }
+  .tabs button.active {
+    background: var(--accent);
+    color: #fff;
+  }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px;
+  }
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 14px 0 6px;
+  }
+  label:first-child { margin-top: 0; }
+  input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 15px;
+  }
+  button.submit {
+    width: 100%;
+    margin-top: 18px;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .result {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--line);
+  }
+  .result.hidden { display: none; }
+  .headline {
+    font-size: 26px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+  .headline small {
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(34, 28, 20, 0.5);
+    display: block;
+  }
+  .breakdown {
+    margin-top: 14px;
+    font-size: 13px;
+  }
+  .breakdown div {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .disclaimer {
+    margin-top: 16px;
+    font-size: 12px;
+    color: rgba(34, 28, 20, 0.5);
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>연봉 실수령액 · 퇴직금 계산기</h1>
+
+  <div class="tabs">
+    <button type="button" data-tab="net" class="active">실수령액</button>
+    <button type="button" data-tab="severance">퇴직금</button>
+  </div>
+
+  <section id="panel-net" class="panel active card">
+    <label for="grossAnnual">연봉 (세전, 원)</label>
+    <input id="grossAnnual" type="number" inputmode="numeric" placeholder="예: 36000000" />
+
+    <label for="dependents">부양가족 수 (본인 제외)</label>
+    <input id="dependents" type="number" inputmode="numeric" value="0" />
+
+    <label for="nonTaxable">비과세액 (월, 원 — 식대 등)</label>
+    <input id="nonTaxable" type="number" inputmode="numeric" value="200000" />
+
+    <button type="button" class="submit" id="calcNetBtn">계산하기</button>
+
+    <div class="result hidden" id="netResult">
+      <div class="headline"><span id="netMonthly"></span>원<small>월 실수령액 (세전 <span id="grossMonthly"></span>원)</small></div>
+      <div class="breakdown">
+        <div><span>국민연금</span><span id="netPension"></span></div>
+        <div><span>건강보험</span><span id="netHealth"></span></div>
+        <div><span>장기요양보험</span><span id="netLongTerm"></span></div>
+        <div><span>고용보험</span><span id="netEmployment"></span></div>
+        <div><span>소득세</span><span id="netIncomeTax"></span></div>
+        <div><span>지방소득세</span><span id="netLocalTax"></span></div>
+      </div>
+      <p class="disclaimer">
+        4대보험 요율은 2024년 기준이며, 소득세는 세액공제를 반영하지 않은 간이 추정치입니다.
+        실제 원천징수액과 차이가 있을 수 있으니 참고용으로만 사용하세요.
+      </p>
+    </div>
+  </section>
+
+  <section id="panel-severance" class="panel card">
+    <label for="hireDate">입사일</label>
+    <input id="hireDate" type="date" />
+
+    <label for="resignDate">퇴사일</label>
+    <input id="resignDate" type="date" />
+
+    <label for="threeMonthWage">퇴사 전 3개월 급여 합계 (원)</label>
+    <input id="threeMonthWage" type="number" inputmode="numeric" placeholder="예: 9000000" />
+
+    <button type="button" class="submit" id="calcSeveranceBtn">계산하기</button>
+
+    <div class="result hidden" id="severanceResult">
+      <div class="headline"><span id="severanceAmount"></span>원<small>예상 퇴직금 (재직 <span id="tenureDays"></span>일)</small></div>
+      <div class="breakdown">
+        <div><span>1일 평균임금</span><span id="avgDailyWage"></span></div>
+      </div>
+      <p class="disclaimer">
+        근로자퇴직급여보장법상 평균임금 × 30일 × (재직일수 ÷ 365) 공식으로 계산한 추정치입니다.
+      </p>
+    </div>
+  </section>
+</main>
+
+<script src="calc.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var won = function (n) { return n.toLocaleString("ko-KR"); };
+
+  document.querySelectorAll(".tabs button").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      document.querySelectorAll(".tabs button").forEach(function (b) { b.classList.remove("active"); });
+      document.querySelectorAll(".panel").forEach(function (p) { p.classList.remove("active"); });
+      btn.classList.add("active");
+      document.getElementById("panel-" + btn.dataset.tab).classList.add("active");
+    });
+  });
+
+  document.getElementById("calcNetBtn").addEventListener("click", function () {
+    var grossAnnual = Number(document.getElementById("grossAnnual").value) || 0;
+    var dependents = Number(document.getElementById("dependents").value) || 0;
+    var nonTaxableMonthly = Number(document.getElementById("nonTaxable").value) || 0;
+    if (grossAnnual <= 0) return;
+
+    var r = calcNetSalary({ grossAnnual: grossAnnual, dependents: dependents, nonTaxableMonthly: nonTaxableMonthly });
+
+    document.getElementById("netMonthly").textContent = won(r.monthlyNet);
+    document.getElementById("grossMonthly").textContent = won(r.monthlyGross);
+    document.getElementById("netPension").textContent = won(r.pension) + "원";
+    document.getElementById("netHealth").textContent = won(r.health) + "원";
+    document.getElementById("netLongTerm").textContent = won(r.longTermCare) + "원";
+    document.getElementById("netEmployment").textContent = won(r.employment) + "원";
+    document.getElementById("netIncomeTax").textContent = won(r.incomeTax) + "원";
+    document.getElementById("netLocalTax").textContent = won(r.localIncomeTax) + "원";
+    document.getElementById("netResult").classList.remove("hidden");
+  });
+
+  document.getElementById("calcSeveranceBtn").addEventListener("click", function () {
+    var hireDate = document.getElementById("hireDate").value;
+    var resignDate = document.getElementById("resignDate").value;
+    var threeMonthWage = Number(document.getElementById("threeMonthWage").value) || 0;
+    if (!hireDate || !resignDate || threeMonthWage <= 0) return;
+
+    var r = calcSeverance({ hireDate: hireDate, resignDate: resignDate, threeMonthWage: threeMonthWage });
+
+    document.getElementById("severanceAmount").textContent = won(r.severance);
+    document.getElementById("tenureDays").textContent = won(r.tenureDays);
+    document.getElementById("avgDailyWage").textContent = won(r.avgDailyWage) + "원";
+    document.getElementById("severanceResult").classList.remove("hidden");
+  });
+})();
+</script>
+</body>
+</html>
