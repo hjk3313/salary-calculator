@@ -97,11 +97,10 @@
     margin: 16px 0 6px;
   }
   label:first-child { margin-top: 0; }
-  .date-row {
-    display: flex;
-    gap: 12px;
+  input[type="date"] {
+    width: auto;
+    max-width: 200px;
   }
-  .date-row > div { flex: 1; min-width: 0; }
   input {
     width: 100%;
     padding: 10px 12px;
@@ -286,16 +285,11 @@
   </section>
 
   <section id="panel-severance" class="panel card">
-    <div class="date-row">
-      <div>
-        <label for="hireDate">입사일</label>
-        <input id="hireDate" type="date" />
-      </div>
-      <div>
-        <label for="resignDate">퇴사일</label>
-        <input id="resignDate" type="date" />
-      </div>
-    </div>
+    <label for="hireDate">입사일</label>
+    <input id="hireDate" type="date" />
+
+    <label for="resignDate">퇴사일</label>
+    <input id="resignDate" type="date" />
 
     <label for="threeMonthWage">퇴사 전 3개월 급여 합계 (원)</label>
     <input id="threeMonthWage" type="number" inputmode="numeric" placeholder="예: 9000000" />
