@@ -97,6 +97,11 @@
     margin: 16px 0 6px;
   }
   label:first-child { margin-top: 0; }
+  .date-row {
+    display: flex;
+    gap: 12px;
+  }
+  .date-row > div { flex: 1; min-width: 0; }
   input {
     width: 100%;
     padding: 10px 12px;
@@ -249,8 +254,8 @@
   </div>
 
   <section id="panel-net" class="panel active card">
-    <label for="grossAnnual">연봉 (세전, 원)</label>
-    <input id="grossAnnual" type="number" inputmode="numeric" placeholder="예: 36000000" />
+    <label for="grossAnnual">연봉 (세전, 만원)</label>
+    <input id="grossAnnual" type="number" inputmode="numeric" placeholder="예: 3600" />
 
     <label for="dependents">부양가족 수 (본인 제외)</label>
     <input id="dependents" type="number" inputmode="numeric" value="0" />
@@ -281,11 +286,16 @@
   </section>
 
   <section id="panel-severance" class="panel card">
-    <label for="hireDate">입사일</label>
-    <input id="hireDate" type="date" />
-
-    <label for="resignDate">퇴사일</label>
-    <input id="resignDate" type="date" />
+    <div class="date-row">
+      <div>
+        <label for="hireDate">입사일</label>
+        <input id="hireDate" type="date" />
+      </div>
+      <div>
+        <label for="resignDate">퇴사일</label>
+        <input id="resignDate" type="date" />
+      </div>
+    </div>
 
     <label for="threeMonthWage">퇴사 전 3개월 급여 합계 (원)</label>
     <input id="threeMonthWage" type="number" inputmode="numeric" placeholder="예: 9000000" />
@@ -330,7 +340,7 @@
   });
 
   document.getElementById("calcNetBtn").addEventListener("click", function () {
-    var grossAnnual = Number(document.getElementById("grossAnnual").value) || 0;
+    var grossAnnual = (Number(document.getElementById("grossAnnual").value) || 0) * 10000;
     var dependents = Number(document.getElementById("dependents").value) || 0;
     var nonTaxableMonthly = Number(document.getElementById("nonTaxable").value) || 0;
     if (grossAnnual <= 0) return;
